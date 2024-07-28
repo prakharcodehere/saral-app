@@ -1,20 +1,40 @@
 'use strict';
 
-module.exports = {
-  /**
-   * An asynchronous register function that runs before
-   * your application is initialized.
-   *
-   * This gives you an opportunity to extend code.
-   */
-  register(/*{ strapi }*/) {},
+const strapi = require('@strapi/strapi');
+const http = require('http');
+const socketIO = require('socket.io');
 
-  /**
-   * An asynchronous bootstrap function that runs before
-   * your application gets started.
-   *
-   * This gives you an opportunity to set up your data model,
-   * run jobs, or perform some special logic.
-   */
-  bootstrap(/*{ strapi }*/) {},
-};
+strapi().start().then((strapiInstance) => {
+  const server = http.createServer(strapiInstance.app);
+  const io = socketIO(server);
+
+  io.on('connection', (socket) => {
+    console.log('A user connected');
+
+    socket.on('join', ({ username }) => {
+      console.log(`${username} joined the chat`);
+      socket.emit('welcome', {
+        user: 'System',
+        text: `Welcome ${username}!`,
+      });
+
+      // Broadcast when a user connects
+      socket.broadcast.emit('message', {
+        user: 'System',
+        text: `${username} has joined the chat`,
+      });
+    });
+
+    socket.on('sendMessage', ({ message, user }) => {
+      io.emit('message', { user, text: message });
+    });
+
+    socket.on('disconnect', () => {
+      console.log('A user disconnected');
+    });
+  });
+
+  server.listen(1337, () => {
+    console.log('Strapi server with Socket.io is running on port 1337');
+  });
+});

@@ -399,7 +399,6 @@ export interface ApiMessageMessage extends Schema.CollectionType {
   };
   attributes: {
     userId: Attribute.String;
-    message: Attribute.Blocks;
     roomId: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;

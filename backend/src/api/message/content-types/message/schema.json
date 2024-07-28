@@ -15,9 +15,6 @@
     "userId": {
       "type": "string"
     },
-    "message": {
-      "type": "blocks"
-    },
     "roomId": {
       "type": "string"
     }
